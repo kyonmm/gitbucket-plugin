@@ -2,8 +2,9 @@ package org.jenkinsci.plugins.gitbucket;
 
 import hudson.model.FreeStyleProject;
 import hudson.plugins.git.GitSCM;
+import hudson.scm.NullSCM;
 import hudson.scm.SCM;
-import java.util.Collections;
+import java.util.Arrays;
 import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.multiplescms.MultiSCM;
 import org.junit.Rule;
@@ -55,7 +56,7 @@ public class GitBucketWebHookTest {
     }
 
     @Test
-    public void testPushTrigger_NotMatchRepo() throws Exception {
+    public void testPushTrigger_NoMatchRepo() throws Exception {
         // Repository URL
         String repo = j.createTmpDir().getAbsolutePath();
 
@@ -71,7 +72,7 @@ public class GitBucketWebHookTest {
         fsp.setScm(scm);
 
         // Setup WebHook request
-        String payload = createPayload("Not Match Repository");
+        String payload = createPayload("No Match Repository");
         StaplerRequest req = mock(StaplerRequest.class);
         when(req.getParameter("payload")).thenReturn(payload);
 
@@ -122,8 +123,9 @@ public class GitBucketWebHookTest {
         fsp.addTrigger(trigger);
 
         // Setup SCM
-        SCM scm = new GitSCM(repo);
-        MultiSCM multiSCM = new MultiSCM(Collections.singletonList(scm));
+        SCM gitSCM = new GitSCM(repo);
+        SCM nullSCM = new NullSCM();
+        MultiSCM multiSCM = new MultiSCM(Arrays.asList(gitSCM, nullSCM));
         fsp.setScm(multiSCM);
 
         // Setup WebHook request
