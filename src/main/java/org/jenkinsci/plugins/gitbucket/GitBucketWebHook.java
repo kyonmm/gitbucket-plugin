@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -104,8 +106,11 @@ public class GitBucketWebHook implements UnprotectedRootAction {
                 if (trigger == null) {
                     continue;
                 }
-                if (RepositoryUrlCollector.collect(job).contains(repositoryUrl.toLowerCase())) {
-                    trigger.onPost(req);
+                for (String url : RepositoryUrlCollector.collect(job)) {
+                    if(Pattern.compile(url).matcher(repositoryUrl.toLowerCase()).find()){
+                        trigger.onPost(req);
+                        break;
+                    }
                 }
             }
         } finally {
